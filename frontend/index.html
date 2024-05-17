@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <title>Payment Form</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center mt-5">Payment Form</h1>
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form id="paymentForm">
+            <div class="mb-3">
+              <label for="price" class="form-label">Price</label>
+              <input type="number" class="form-control" id="price" required />
+            </div>
+            <div class="mb-3">
+              <label for="currency" class="form-label">Currency</label>
+              <select class="form-select" id="currency" required>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="THB">THB</option>
+                <option value="HKD">HKD</option>
+                <option value="SGD">SGD</option>
+                <option value="AUD">AUD</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="customerName" class="form-label"
+                >Customer Full Name</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="customerName"
+                required
+              />
+            </div>
+            <h2>Payment</h2>
+            <div class="mb-3">
+              <label for="cardHolderName" class="form-label"
+                >Credit Card Holder Name</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="cardHolderName"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="cardNumber" class="form-label"
+                >Credit Card Number</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="cardNumber"
+                required
+              />
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="expiration" class="form-label"
+                    >Credit Card Expiration</label
+                  >
+                  <input
+                    type="month"
+                    class="form-control"
+                    id="expiration"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="ccv" class="form-label">Credit Card CCV</label>
+                  <input type="password" class="form-control" id="ccv" required />
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+          <div id="message" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document
+        .getElementById("paymentForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const price = document.getElementById("price");
+          const currency = document.getElementById("currency");
+          const customerName = document.getElementById("customerName");
+          const cardHolderName = document.getElementById("cardHolderName");
+          const cardNumber = document.getElementById("cardNumber");
+          const expiration = document.getElementById("expiration");
+          const ccv = document.getElementById("ccv");
+
+          if (
+            !price.value ||
+            !currency.value ||
+            !customerName.value ||
+            !cardHolderName.value ||
+            !cardNumber.value ||
+            !expiration.value ||
+            !ccv.value
+          ) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Please fill in all fields.</div>';
+            return;
+          }
+
+          if (isNaN(price.value) || price.value <= 0) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Price must be a positive number.</div>';
+            return;
+          }
+
+          if (!/^(USD|EUR|THB|HKD|SGD|AUD)$/.test(currency.value)) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Invalid currency.</div>';
+            return;
+          }
+
+          if (!/^[a-zA-Z\s]+$/.test(customerName.value)) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Invalid customer name.</div>';
+            return;
+          }
+
+          if (!/^[a-zA-Z\s]+$/.test(cardHolderName.value)) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Invalid card holder name.</div>';
+            return;
+          }
+
+          if (!/^[0-9]{13,16}$/.test(cardNumber.value)) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Invalid card number.</div>';
+            return;
+          }
+
+          if (!/^(0[1-9]|1[0-2])\/?([0-9]{4})$/.test(expiration.value)) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Invalid expiration date.</div>';
+            return;
+          }
+
+          if (!/^[0-9]{3}$/.test(ccv.value)) {
+            document.getElementById("message").innerHTML =
+              '<div class="alert alert-danger">Invalid CCV.</div>';
+            return;
+          }
+
+          // If all validations pass, send the form data to the server
+          fetch("http://localhost:3000/api/v1/payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              price: price.value,
+              currency: currency.value,
+              customerName: customerName.value,
+              cardHolderName: cardHolderName.value,
+              cardNumber: cardNumber.value,
+              expiration: expiration.value,
+              ccv: ccv.value,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                document.getElementById("message").innerHTML =
+                  '<div class="alert alert-success">Payment successful!</div>';
+              } else {
+                document.getElementById("message").innerHTML =
+                  '<div class="alert alert-danger">Payment failed.</div>';
+              }
+            })
+            .catch((error) => {
+              document.getElementById("message").innerHTML =
+                '<div class="alert alert-danger">An error occurred while processing the payment.</div>';
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js"></script>
+  </body>
+</html>

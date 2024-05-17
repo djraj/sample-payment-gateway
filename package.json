@@ -1,0 +1,19 @@
+{
+  "name": "payment_gateway",
+  "version": "1.0.0",
+  "description": "Payment Gateway Library",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "Durairaj Anbarasan",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "body-parser": "^1.20.2",
+    "braintree": "^3.21.0",
+    "express": "^4.18.2",
+    "mongoose": "^8.1.1",
+    "mongoose-paginate-v2": "^1.8.0"
+  }
+}
